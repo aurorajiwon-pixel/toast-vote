@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>🍳 오늘의 요리 모둠</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --cream: #FAF6EF;
+    --warm: #F2EAD8;
+    --ink: #1A1208;
+    --ink2: #4A3F2F;
+    --ink3: #8A7A65;
+    --accent: #C84B11;
+    --accent2: #E87A3A;
+    --gold: #D4A84B;
+    --border: rgba(74,63,47,0.18);
+    --card-bg: rgba(255,255,255,0.72);
+  }
+  html { font-size: 16px; }
+  body {
+    background: var(--cream);
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(212,168,75,0.13) 0%, transparent 60%),
+      url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='1' cy='1' r='0.8' fill='%234A3F2F' opacity='0.06'/%3E%3C/svg%3E");
+    font-family: 'Nanum Gothic', sans-serif;
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+  header {
+    background: var(--ink);
+    padding: 28px 20px 22px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(-45deg, transparent, transparent 6px, rgba(255,255,255,0.025) 6px, rgba(255,255,255,0.025) 7px);
+  }
+  .header-eyebrow { font-family: 'Gowun Batang', serif; font-size: 11px; letter-spacing: 3px; color: var(--gold); text-transform: uppercase; margin-bottom: 10px; position: relative; }
+  header h1 { font-family: 'Gowun Batang', serif; font-size: 26px; font-weight: 700; color: #FAF6EF; line-height: 1.3; position: relative; }
+  header h1 em { font-style: normal; color: var(--accent2); }
+  .header-sub { font-size: 12px; color: rgba(250,246,239,0.5); margin-top: 8px; position: relative; line-height: 1.6; }
+  .secret-tap { position: absolute; top: 0; right: 0; width: 48px; height: 48px; cursor: default; z-index: 10; }
+  .stats { display: flex; justify-content: center; gap: 0; background: var(--warm); border-bottom: 1px solid var(--border); }
+  .stat { flex: 1; max-width: 120px; padding: 12px 8px; text-align: center; border-right: 1px solid var(--border); }
+  .stat:last-child { border-right: none; }
+  .stat-val { font-family: 'Gowun Batang', serif; font-size: 22px; font-weight: 700; color: var(--accent); line-height: 1; }
+  .stat-label { font-size: 10px; color: var(--ink3); margin-top: 3px; letter-spacing: 0.5px; }
+  .cards { padding: 20px 14px 0; display: flex; flex-direction: column; gap: 12px; }
+  .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; backdrop-filter: blur(6px); transition: transform 0.15s; }
+  .card:active { transform: scale(0.985); }
+  .card.full { opacity: 0.75; }
+  .card-header { display: flex; align-items: center; gap: 12px; padding: 14px 16px 10px; border-bottom: 1px solid var(--border); }
+  .card-emoji { width: 42px; height: 42px; border-radius: 12px; background: var(--warm); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; border: 1px solid var(--border); }
+  .card-info { flex: 1; min-width: 0; }
+  .card-name { font-weight: 800; font-size: 15px; color: var(--ink); }
+  .card-count { font-size: 12px; color: var(--ink3); margin-top: 2px; }
+  .badge-full { font-size: 11px; font-weight: 700; background: var(--ink); color: #FAF6EF; padding: 3px 10px; border-radius: 20px; letter-spacing: 0.3px; flex-shrink: 0; }
+  .slots { display: flex; gap: 8px; padding: 10px 16px; flex-wrap: wrap; align-items: center; }
+  .slot { width: 32px; height: 32px; border-radius: 50%; border: 1.5px dashed var(--border); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--ink3); transition: all 0.25s; flex-shrink: 0; }
+  .slot.filled { border-style: solid; border-color: transparent; }
+  .slot.c0.filled { background: #FFF0E8; border-color: #F4C0B3; color: #993C1D; }
+  .slot.c1.filled { background: #FFF8E0; border-color: #ECDAA0; color: #856A0A; }
+  .slot.c2.filled { background: #E8F5EF; border-color: #9ED3B6; color: #0E6B47; }
+  .slot.c3.filled { background: #EEF1FF; border-color: #B8C3F8; color: #3444B0; }
+  .slot.c4.filled { background: #F5EEF8; border-color: #D9B8E8; color: #7A3B98; }
+  .join-btn { width: calc(100% - 32px); margin: 2px 16px 14px; padding: 11px 0; border-radius: 12px; border: 1.5px solid var(--accent); background: var(--accent); color: #FAF6EF; font-family: 'Nanum Gothic', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: background 0.15s, transform 0.1s; letter-spacing: 0.2px; }
+  .join-btn:hover { background: #A83A08; }
+  .join-btn:active { transform: scale(0.97); }
+  .join-btn:disabled { background: var(--warm); border-color: var(--border); color: var(--ink3); cursor: not-allowed; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(26,18,8,0.55); display: flex; align-items: flex-end; justify-content: center; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal { background: var(--cream); border-radius: 24px 24px 0 0; padding: 8px 20px 40px; width: 100%; max-width: 480px; transform: translateY(100%); transition: transform 0.25s cubic-bezier(.32,.72,0,1); }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 10px auto 18px; }
+  .modal h2 { font-family: 'Gowun Batang', serif; font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .modal-sub { font-size: 12px; color: var(--ink3); margin-bottom: 18px; }
+  .modal input { width: 100%; padding: 13px 16px; border: 1.5px solid var(--border); border-radius: 12px; font-family: 'Nanum Gothic', sans-serif; font-size: 16px; color: var(--ink); background: #fff; margin-bottom: 12px; outline: none; transition: border-color 0.15s; }
+  .modal input:focus { border-color: var(--accent); }
+  .modal-confirm { width: 100%; padding: 14px; border-radius: 12px; border: none; background: var(--accent); color: #FAF6EF; font-family: 'Nanum Gothic', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+  .modal-confirm:hover { background: #A83A08; }
+  .modal-cancel { width: 100%; padding: 11px; border-radius: 12px; border: 1px solid var(--border); background: transparent; color: var(--ink3); font-family: 'Nanum Gothic', sans-serif; font-size: 14px; cursor: pointer; margin-top: 8px; }
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--ink); color: #FAF6EF; padding: 10px 20px; border-radius: 24px; font-size: 13px; font-weight: 700; opacity: 0; transition: opacity 0.2s, transform 0.2s; pointer-events: none; z-index: 200; white-space: nowrap; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .admin-panel { display: none; position: fixed; inset: 0; background: rgba(26,18,8,0.8); z-index: 300; align-items: center; justify-content: center; }
+  .admin-panel.open { display: flex; }
+  .admin-box { background: var(--cream); border-radius: 20px; padding: 28px 24px; width: 300px; text-align: center; }
+  .admin-box h3 { font-family: 'Gowun Batang', serif; font-size: 17px; margin-bottom: 6px; }
+  .admin-box p { font-size: 13px; color: var(--ink3); margin-bottom: 18px; }
+  .admin-input { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 16px; text-align: center; letter-spacing: 4px; margin-bottom: 12px; outline: none; font-family: 'Nanum Gothic', sans-serif; background: #fff; color: var(--ink); }
+  .admin-input:focus { border-color: var(--accent); }
+  .admin-ok { width: 100%; padding: 12px; border-radius: 10px; border: none; background: var(--accent); color: #FAF6EF; font-size: 14px; font-weight: 700; cursor: pointer; font-family: 'Nanum Gothic', sans-serif; }
+  .admin-cancel { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: transparent; color: var(--ink3); font-size: 13px; cursor: pointer; margin-top: 8px; font-family: 'Nanum Gothic', sans-serif; }
+  .all-done { text-align: center; padding: 16px 20px; font-size: 13px; color: var(--accent); font-weight: 700; letter-spacing: 0.3px; display: none; }
+  .all-done.show { display: block; }
+  .loading { text-align: center; padding: 40px 20px; color: var(--ink3); font-size: 14px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-eyebrow">🍳 2학년 ○반 · 모둠 선택</div>
+  <h1>오늘의 <em>요리 모둠</em><br>선착순 신청</h1>
+  <p class="header-sub">원하는 메뉴 모둠에 이름을 입력하세요<br>자리가 꽉 차면 자동 마감돼요!</p>
+  <div class="secret-tap" id="secretTap"></div>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="stat-val" id="totalCount">0</div><div class="stat-label">참여</div></div>
+  <div class="stat"><div class="stat-val" id="remainCount">22</div><div class="stat-label">남은 자리</div></div>
+  <div class="stat"><div class="stat-val" id="fullCount">0</div><div class="stat-label">마감 모둠</div></div>
+</div>
+
+<div class="all-done" id="allDone">🎉 22명 모두 모둠이 확정됐어요!</div>
+<div class="cards" id="cards"><div class="loading">불러오는 중...</div></div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2 id="modalTitle"></h2>
+    <p class="modal-sub" id="modalSub"></p>
+    <input type="text" id="nameInput" placeholder="이름을 입력하세요" maxlength="8" autocomplete="off" />
+    <button class="modal-confirm" onclick="confirmJoin()">✓ 확인</button>
+    <button class="modal-cancel" onclick="closeModal()">취소</button>
+  </div>
+</div>
+
+<div class="admin-panel" id="adminPanel">
+  <div class="admin-box">
+    <h3>🔑 선생님 메뉴</h3>
+    <p>비밀번호를 입력하면<br>전체 초기화할 수 있어요</p>
+    <input type="password" class="admin-input" id="adminPw" placeholder="비밀번호" />
+    <button class="admin-ok" onclick="checkAdmin()">확인</button>
+    <button class="admin-cancel" onclick="closeAdmin()">취소</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue, runTransaction, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const ADMIN_PW = '1234';
+const GROUPS = [
+  { id: 0, name: '전남친 토스트', emoji: '💔', max: 5 },
+  { id: 1, name: '정승제 토스트', emoji: '📐', max: 4 },
+  { id: 2, name: '프렌치 토스트', emoji: '🥐', max: 5 },
+  { id: 3, name: '팬케이크',      emoji: '🥞', max: 4 },
+  { id: 4, name: '자유 모둠',     emoji: '✨', max: 4 },
+];
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBPWXg_W23CbjIEuL1YJ-Yt7ZIGHHX3P7o",
+  authDomain: "toast-vote.firebaseapp.com",
+  databaseURL: "https://toast-vote-default-rtdb.firebaseio.com",
+  projectId: "toast-vote",
+  storageBucket: "toast-vote.firebasestorage.app",
+  messagingSenderId: "39989969857",
+  appId: "1:39989969857:web:63eee325afc74648522540",
+  measurementId: "G-EQTW2VFYDF"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+const dbRef = ref(db, 'groups');
+
+let members = GROUPS.map(() => []);
+let activeGroup = null;
+
+// 실시간 수신
+onValue(dbRef, (snapshot) => {
+  const data = snapshot.val() || {};
+  members = GROUPS.map((g, i) => {
+    const raw = data[i] || {};
+    return Object.values(raw);
+  });
+  render();
+});
+
+function render() {
+  const total = members.flat().length;
+  const full  = members.filter((m, i) => m.length >= GROUPS[i].max).length;
+  document.getElementById('totalCount').textContent  = total;
+  document.getElementById('remainCount').textContent = 22 - total;
+  document.getElementById('fullCount').textContent   = full;
+  document.getElementById('allDone').classList.toggle('show', total >= 22);
+
+  const cards = document.getElementById('cards');
+  cards.innerHTML = '';
+
+  GROUPS.forEach((g, i) => {
+    const cnt    = members[i].length;
+    const isFull = cnt >= g.max;
+    const card   = document.createElement('div');
+    card.className = 'card' + (isFull ? ' full' : '');
+
+    const slots = Array.from({ length: g.max }, (_, s) => {
+      const name = members[i][s];
+      return name
+        ? `<div class="slot filled c${i}">${name[0]}</div>`
+        : `<div class="slot"></div>`;
+    }).join('');
+
+    card.innerHTML = `
+      <div class="card-header">
+        <div class="card-emoji">${g.emoji}</div>
+        <div class="card-info">
+          <div class="card-name">${g.name}</div>
+          <div class="card-count">${cnt}/${g.max}명${isFull ? '' : ` · ${g.max - cnt}자리 남음`}</div>
+        </div>
+        ${isFull ? '<div class="badge-full">마감</div>' : ''}
+      </div>
+      <div class="slots">${slots}</div>
+      <button class="join-btn" ${isFull ? 'disabled' : ''} onclick="window._openModal(${i})">
+        ${isFull ? '인원 마감' : '📝 이 모둠 신청하기'}
+      </button>
+    `;
+    cards.appendChild(card);
+  });
+}
+
+window._openModal = function(idx) {
+  activeGroup = idx;
+  const g = GROUPS[idx];
+  document.getElementById('modalTitle').textContent = `${g.emoji} ${g.name}`;
+  document.getElementById('modalSub').textContent   = `현재 ${members[idx].length}/${g.max}명 · ${g.max - members[idx].length}자리 남음`;
+  document.getElementById('nameInput').value = '';
+  document.getElementById('modalOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('nameInput').focus(), 300);
+};
+
+window.closeModal = function() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  activeGroup = null;
+};
+
+window.confirmJoin = async function() {
+  const name = document.getElementById('nameInput').value.trim();
+  if (!name) { showToast('이름을 입력해주세요 ✏️'); return; }
+  if (activeGroup === null) return;
+
+  const g = GROUPS[activeGroup];
+
+  // 이미 다른 모둠에 있는지 확인
+  const allNames = members.flat();
+  if (allNames.includes(name)) {
+    showToast(`${name}은 이미 다른 모둠에 있어요 🙅`);
+    return;
+  }
+
+  const groupRef = ref(db, `groups/${activeGroup}`);
+  let success = false;
+
+  await runTransaction(groupRef, (current) => {
+    const existing = current ? Object.values(current) : [];
+    if (existing.length >= g.max) return; // 마감 — 트랜잭션 중단
+    existing.push(name);
+    const obj = {};
+    existing.forEach((n, i) => obj[i] = n);
+    success = true;
+    return obj;
+  });
+
+  if (success) {
+    closeModal();
+    showToast(`✅ ${name} · ${g.name} 등록 완료!`);
+  } else {
+    showToast('방금 마감됐어요 😅 다른 모둠을 선택해주세요');
+    closeModal();
+  }
+};
+
+document.getElementById('nameInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') window.confirmJoin();
+  if (e.key === 'Escape') window.closeModal();
+});
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modalOverlay')) window.closeModal();
+});
+
+// 비밀 탭 — 오른쪽 상단 5번
+let tapCount = 0, tapTimer;
+document.getElementById('secretTap').addEventListener('click', () => {
+  tapCount++;
+  clearTimeout(tapTimer);
+  tapTimer = setTimeout(() => tapCount = 0, 2000);
+  if (tapCount >= 5) { tapCount = 0; openAdmin(); }
+});
+
+function openAdmin() {
+  document.getElementById('adminPw').value = '';
+  document.getElementById('adminPanel').classList.add('open');
+  setTimeout(() => document.getElementById('adminPw').focus(), 100);
+}
+window.closeAdmin = function() {
+  document.getElementById('adminPanel').classList.remove('open');
+};
+window.checkAdmin = async function() {
+  if (document.getElementById('adminPw').value === ADMIN_PW) {
+    closeAdmin();
+    if (confirm('정말 전체 초기화할까요?\n모든 신청 내역이 삭제됩니다.')) {
+      await remove(dbRef);
+      showToast('🗑️ 초기화 완료');
+    }
+  } else {
+    showToast('비밀번호가 틀렸어요 🔒');
+    document.getElementById('adminPw').value = '';
+  }
+};
+document.getElementById('adminPw').addEventListener('keydown', e => {
+  if (e.key === 'Enter') window.checkAdmin();
+  if (e.key === 'Escape') window.closeAdmin();
+});
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>
